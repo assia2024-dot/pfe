@@ -1,5 +1,6 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -23,8 +24,10 @@ public class Categorie {
     private Integer note;
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Audit> audits;
 
     @OneToMany(mappedBy = "categorie", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<PieceJointe> piecesJointes;
 }

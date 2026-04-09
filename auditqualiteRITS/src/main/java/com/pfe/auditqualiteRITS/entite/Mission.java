@@ -1,5 +1,7 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -32,17 +34,21 @@ public class Mission {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auditeur_id")
+    @JsonIgnore
     private Auditeur auditeur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "administrateur_id")
+    @JsonIgnore
     private Administrateur administrateur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "magasin_id", nullable = false)
+    @JsonIgnore
     private Magasin magasin;
 
     @OneToOne(mappedBy = "mission", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Audit audit;
 
 

@@ -1,5 +1,6 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -22,5 +23,6 @@ public class Region {
     private String code;
 
     @OneToMany(mappedBy = "region", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Magasin> magasins;
 }

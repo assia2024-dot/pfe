@@ -1,5 +1,6 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -28,5 +29,6 @@ public class PieceJointe {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categorie_id", nullable = false)
+    @JsonIgnore
     private Categorie categorie;
 }

@@ -1,4 +1,4 @@
--- Drop tables if they exist (for clean testing)
+-- Drop tables if they exist
 DROP TABLE IF EXISTS audit_categories CASCADE;
 DROP TABLE IF EXISTS pieces_jointes CASCADE;
 DROP TABLE IF EXISTS liens_externes CASCADE;
@@ -23,13 +23,13 @@ CREATE TABLE utilisateurs (
     actif BOOLEAN NOT NULL
 );
 
--- Administrators table (child of utilisateurs)
+-- Administrators table
 CREATE TABLE administrateurs (
     utilisateur_id BIGINT NOT NULL PRIMARY KEY,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
 );
 
--- Auditors table (child of utilisateurs)
+-- Auditors table
 CREATE TABLE auditeurs (
     utilisateur_id BIGINT NOT NULL PRIMARY KEY,
     telephone VARCHAR(255),

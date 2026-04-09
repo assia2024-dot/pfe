@@ -1,5 +1,6 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -28,5 +29,6 @@ public class AuditeurExterne {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mission_id")
+    @JsonIgnore
     private Mission mission;
 }

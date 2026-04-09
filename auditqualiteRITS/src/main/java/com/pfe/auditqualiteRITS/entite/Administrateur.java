@@ -1,5 +1,6 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -14,8 +15,10 @@ import java.util.List;
 public class Administrateur extends Utilisateur {
 
     @OneToMany(mappedBy = "administrateur", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Mission> missions;
 
     @OneToMany(mappedBy = "administrateur", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<LienExterne> liensExternes;
 }

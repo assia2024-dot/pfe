@@ -1,5 +1,6 @@
 package com.pfe.auditqualiteRITS.entite;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -31,13 +32,16 @@ public class LienExterne {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "administrateur_id", nullable = false)
+    @JsonIgnore
     private Administrateur administrateur;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "magasin_id", nullable = false)
+    @JsonIgnore
     private Magasin magasin;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auditeur_externe_id")
+    @JsonIgnore
     private AuditeurExterne auditeurExterne;
 }
