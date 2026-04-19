@@ -23,7 +23,7 @@ const data = {
   },
   teams: [
     {
-      name: "ElectroPlanete",
+      name: "ElectroPlanet",
       logo: (<Building2  />),
       role: "Administrateur"
     }
