@@ -51,7 +51,7 @@ function DropdownMenuGroup({
   return (<DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />);
 }
 
-function DropdownMenuItem({
+/*function DropdownMenuItem({
   className,
   inset,
   variant = "default",
@@ -70,6 +70,69 @@ function DropdownMenuItem({
   );
 }
 
+old one 
+*/
+
+function DropdownMenuItem({
+  className,
+  inset,
+  variant = "default",
+  ...props
+}) {
+  return (
+    <DropdownMenuPrimitive.Item
+      data-slot="dropdown-menu-item"
+      data-inset={inset}
+      data-variant={variant}
+      className={cn(
+        "group/dropdown-menu-item relative flex cursor-default items-center gap-1.5 rounded-md px-1.5 py-1 text-sm outline-none select-none",
+
+        // default hover + focus (works now)
+        "hover:bg-accent hover:text-accent-foreground",
+        "focus:bg-accent focus:text-accent-foreground",
+      // GRAY variant
+        "data-[variant=gray]:text-gray-700",
+        "data-[variant=gray]:hover:bg-gray-100",
+        "data-[variant=gray]:focus:bg-gray-100",
+        "data-[variant=gray]:focus:text-gray-700",
+        "dark:data-[variant=gray]:hover:bg-gray-700",
+        "dark:data-[variant=gray]:focus:bg-gray-700",
+
+        // spacing
+        "data-inset:pl-7",
+
+        // INFO (blue)
+        "data-[variant=info]:text-blue-600",
+        "data-[variant=info]:hover:bg-blue-50 data-[variant=info]:focus:bg-blue-50",
+
+        // SUCCESS (green)
+        "data-[variant=success]:text-emerald-600",
+        "data-[variant=success]:hover:bg-emerald-50 data-[variant=success]:focus:bg-emerald-50",
+
+        // WARNING (amber)
+        "data-[variant=warning]:text-amber-600",
+        "data-[variant=warning]:hover:bg-amber-50 data-[variant=warning]:focus:bg-amber-50",
+
+        // DESTRUCTIVE (red)
+        "data-[variant=destructive]:text-destructive",
+        "data-[variant=destructive]:hover:bg-destructive/10",
+        "data-[variant=destructive]:focus:bg-destructive/10",
+        "data-[variant=destructive]:focus:text-destructive",
+        "dark:data-[variant=destructive]:focus:bg-destructive/20",
+
+        // disabled
+        "data-disabled:pointer-events-none data-disabled:opacity-50",
+
+        // icons
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "data-[variant=destructive]:[&_svg]:text-destructive",
+
+        className
+      )}
+      {...props}
+    />
+  );
+}
 function DropdownMenuCheckboxItem({
   className,
   children,
