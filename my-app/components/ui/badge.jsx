@@ -23,6 +23,18 @@ const badgeVariants = cva(
           "bg-green-700 text-white hover:bg-green-600",
         auditor:
           "bg-blue-700 text-white hover:bg-blue-600",
+        en_attente:
+           "bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400",
+        en_cours:
+            "bg-blue-600/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
+        terminee:
+            "bg-green-600/10 text-green-700 dark:bg-green-600/20 dark:text-green-500",
+        actif: 
+             "bg-green-600/10 text-green-700 dark:bg-green-600/20 dark:text-green-500",
+        inactif:
+             "bg-gray-600/10 text-gray-700 dark:bg-gray-600/20 dark:text-gray-500",
+
+
       },
     },
     defaultVariants: {

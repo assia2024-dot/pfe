@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -9,6 +10,17 @@ import {
   ListTodo, Map, HatGlasses, ChevronsUpDownIcon, UserRound,
   UserRoundPen, BadgeQuestionMark, LogOutIcon
 } from "lucide-react"
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Sidebar,
   SidebarContent,
@@ -71,7 +83,7 @@ const items = [
     icon: <ListTodo />,
     items: [
       { title: "Gestion des missions", url: "/missions" },
-      { title: "Gestion des elements d'audit", url: "/missions/audit" },
+      { title: "Gestion des elements d'audit", url: "/elementAudit" },
       { title: "Suivi des missions", url: "/missions/suivi" },
     ],
   },
@@ -80,8 +92,8 @@ const items = [
     url: "#",
     icon: <Map />,
     items: [
-      { title: "Gestion des Régions", url: "/entites/regions" },
-      { title: "Gestion des Magasins", url: "/entites/magasins" },
+      { title: "Gestion des Régions", url: "/region" },
+      { title: "Gestion des Magasins", url: "/magasin" },
     ],
   },
   {
@@ -106,35 +118,18 @@ function getInitials(name) {
 
 function SidebarUserFooter() {
   const { isMobile } = useSidebar()
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
 
-  return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
-              </div>
-              <ChevronsUpDownIcon className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+    return (
+    <>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
@@ -143,32 +138,72 @@ function SidebarUserFooter() {
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <UserRound />
-                Profil
+                <ChevronsUpDownIcon className="ml-auto size-4" />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+              side={isMobile ? "bottom" : "right"}
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{user.name}</span>
+                    <span className="truncate text-xs">{user.email}</span>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <UserRound />
+                  Profil
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <UserRoundPen />
+                  Modifier le profil
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <BadgeQuestionMark />
+                  Aide
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onSelect={() => setShowLogoutDialog(true)} // 👈 key line
+              >
+                <LogOutIcon />
+                Déconnexion
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <UserRoundPen />
-                Modifier le profil
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BadgeQuestionMark />
-                Aide
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOutIcon />
-              Déconnexion
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      </SidebarMenu>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Déconnexion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir vous déconnecter ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+<AlertDialogAction onClick={() => setShowLogoutDialog(false)}>
+    Déconnexion
+</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 

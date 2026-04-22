@@ -22,65 +22,95 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
     Table, TableBody, TableCell,
-    TableHead, TableHeader, TableRow, TableCaption
+    TableHead, TableHeader, TableRow,TableCaption 
 } from "@/components/ui/table";
 
-const initialUsers = [
+const initialMissions = [
     {
         id: 1,
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@example.com",
-        role: "admin",
+        titre: "Audit Qualité Q1",
+        magasin: "ElectroPlanet Casablanca Maarif",
+        auditeur: "Karim Benali",
+        dateDebut: "2024-01-15",
+        dateFin: "2024-01-20",
+        statut: "Terminée",
     },
     {
         id: 2,
-        firstName: "Sarah",
-        lastName: "Johnson",
-        email: "sarah.johnson@example.com",
-        role: "auditor",
+        titre: "Contrôle Stock Hiver",
+        magasin: "ElectroPlanet Rabat Agdal",
+        auditeur: "Fatima Zahra Idrissi",
+        dateDebut: "2024-02-01",
+        dateFin: "2024-02-05",
+        statut: "En cours",
     },
     {
         id: 3,
-        firstName: "Michael",
-        lastName: "Brown",
-        email: "michael.brown@example.com",
-        role: "auditor",
+        titre: "Inspection Sécurité",
+        magasin: "ElectroPlanet Marrakech Guéliz",
+        auditeur: null,
+        dateDebut: "2024-02-10",
+        dateFin: "2024-02-15",
+        statut: "En attente",
+    },
+    {
+        id: 4,
+        titre: "Audit Service Client",
+        magasin: "ElectroPlanet Fès Atlas",
+        auditeur: "Youssef Tazi",
+        dateDebut: "2024-02-20",
+        dateFin: "2024-02-25",
+        statut: "En cours",
+    },
+    {
+        id: 5,
+        titre: "Vérification Affichage Prix",
+        magasin: "ElectroPlanet Tanger Ibn Batouta",
+        auditeur: null,
+        dateDebut: "2024-03-01",
+        dateFin: "2024-03-03",
+        statut: "En attente",
     },
 ]
 
-export function UserTable() {
+export function MissionsTable() {
 
-    const [users, setUsers] = useState(initialUsers);
-    const [userToDelete, setUserToDelete] = useState(null);
+    const [missions, setMissions] = useState(initialMissions);
+    const [missionToDelete, setMissionToDelete] = useState(null);
 
-    function handleDelete(user) {
-        setUsers((prev) => prev.filter((u) => u.id !== user.id));
-        setUserToDelete(null);
+    function handleDelete(mission) {
+        setMissions((prev) => prev.filter((m) => m.id !== mission.id));
+        setMissionToDelete(null);
     }
 
     return (
-        <>
+        <div>
             <Table>
-                <TableCaption>Liste des utilisateurs et leurs rôles.</TableCaption>
+                <TableCaption>Liste des missions d'audit récentes.</TableCaption>
                 <TableHeader>
                     <TableRow>
                         <TableHead>
                             <Badge>Id</Badge>
                         </TableHead>
                         <TableHead>
-                            <Badge>First Name</Badge>
+                            <Badge>Titre</Badge>
                         </TableHead>
                         <TableHead>
-                            <Badge>Last Name</Badge>
+                            <Badge>Magasin</Badge>
                         </TableHead>
                         <TableHead>
                             <Badge>
-                                Email
+                                Auditeur
                             </Badge>
                         </TableHead>
                         <TableHead>
-                            <Badge>Role</Badge>
+                            <Badge>Date Début</Badge>
+                        </TableHead>
+                        <TableHead>
+                            <Badge>Date Fin</Badge>
+                        </TableHead>
+                        <TableHead>
+                            <Badge>Statut</Badge>
                         </TableHead>
                         <TableHead className="text-right">
                             Action
@@ -88,14 +118,19 @@ export function UserTable() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {users.map((user) => (
-                        <TableRow key={user.id}>
-                            <TableCell>{user.id}</TableCell>
-                            <TableCell>{user.firstName}</TableCell>
-                            <TableCell>{user.lastName}</TableCell>
-                            <TableCell>{user.email}</TableCell>
-                            <TableCell><Badge variant={user.role.toLowerCase() == "admin" ? "admin" : "auditor"}>{user.role}</Badge></TableCell>
-
+                    {missions.map((mission) => (
+                        <TableRow key={mission.id}>
+                            <TableCell>{mission.id}</TableCell>
+                            <TableCell>{mission.titre}</TableCell>
+                            <TableCell>{mission.magasin}</TableCell>
+                            <TableCell>{mission.auditeur ?? "-"}</TableCell>
+                            <TableCell>{mission.dateDebut}</TableCell>
+                            <TableCell>{mission.dateFin}</TableCell>
+                            <TableCell>
+                                <Badge variant={mission.statut === "En attente" ? "en_attente" : mission.statut === "En cours" ? "en_cours" : "terminee"}>
+                                    {mission.statut}
+                                </Badge>
+                            </TableCell>
                             <TableCell className="text-right">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -109,7 +144,7 @@ export function UserTable() {
                                         <DropdownMenuItem>Edit</DropdownMenuItem>
                                         <DropdownMenuItem>Duplicate</DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem variant="destructive" onSelect={() => setUserToDelete(user)}>
+                                        <DropdownMenuItem variant="destructive" onSelect={() => setMissionToDelete(mission)}>
                                             Delete
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -121,13 +156,13 @@ export function UserTable() {
             </Table>
 
             <AlertDialog
-                open={!!userToDelete}
-                onOpenChange={(open) => !open && setUserToDelete(null)}
+                open={!!missionToDelete}
+                onOpenChange={(open) => !open && setMissionToDelete(null)}
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            Delete {userToDelete?.firstName} {userToDelete?.lastName}?
+                            Delete {missionToDelete?.titre}?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             This will permanently remove this user. This action cannot be undone.
@@ -135,12 +170,15 @@ export function UserTable() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(userToDelete)}>
+                        <AlertDialogAction onClick={() => handleDelete(missionToDelete)}>
                             Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </>
+        </div>
     )
 }
+
+
+//<TableCell><Badge variant={mission.statut.toLowerCase() == "admin" ? "admin" : "auditor"}>{user.role}</Badge></TableCell>

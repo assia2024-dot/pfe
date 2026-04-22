@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { SidebarTrigger ,useSidebar  } from "@/components/ui/sidebar"
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { ChevronRight, Home } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 
@@ -19,15 +19,15 @@ const items = [
     title: "Missions",
     items: [
       { title: "Gestion des missions", url: "/missions" },
-      { title: "Gestion des elements d'audit", url: "/missions/audit" },
+      { title: "Gestion des elements d'audit", url: "/elementAudit" },
       { title: "Suivi des missions", url: "/missions/suivi" },
     ],
   },
   {
     title: "Entités",
     items: [
-      { title: "Gestion des Régions", url: "/entites/regions" },
-      { title: "Gestion des Magasins", url: "/entites/magasins" },
+      { title: "Gestion des Régions", url: "/region" },
+      { title: "Gestion des Magasins", url: "/magasin" },
     ],
   },
   {
@@ -41,8 +41,7 @@ const items = [
 
 export function BreadcrumbHeader() {
   const pathname = usePathname()
-  const { state } = useSidebar()  // ← add this
-
+  const { state } = useSidebar()  
   let parent = null
   let current = null
 
@@ -56,11 +55,13 @@ export function BreadcrumbHeader() {
   }
 
   return (
-    <header className="flex items-center gap-3 border-b px-4 py-3 bg-background">
-{state === "collapsed" && (
-  <SidebarTrigger className="text-foreground hover:bg-accent" />
-)}
-{state === "collapsed" && <div className="w-px h-5 bg-border" />}
+<header className="flex items-center gap-3 border-b px-4 py-3 bg-background shrink-0">
+  {/* Show on mobile always, show on desktop only when collapsed */}
+  <SidebarTrigger className="text-foreground hover:bg-accent md:hidden" />
+  {state === "collapsed" && (
+    <SidebarTrigger className="text-foreground hover:bg-accent hidden md:flex" />
+  )}
+  {state === "collapsed" && <div className="w-px h-5 bg-border hidden md:block" />}
       <nav className="flex items-center gap-1 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground transition-colors">
           <Home className="w-4 h-4" />
@@ -79,8 +80,8 @@ export function BreadcrumbHeader() {
         )}
       </nav>
       <div className="ml-auto">
-  <ModeToggle />
-</div>
+        <ModeToggle />
+      </div>
     </header>
   )
 }
