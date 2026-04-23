@@ -60,4 +60,13 @@ function Badge({
   );
 }
 
-export { Badge, badgeVariants }
+function BadgeDot() {
+  return (
+    <span
+      data-icon="dot"
+      className="block size-1.5 rounded-full bg-current opacity-80"
+    />
+  )
+}
+
+export { Badge, badgeVariants , BadgeDot }

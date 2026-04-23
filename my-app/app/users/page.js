@@ -1,11 +1,11 @@
 import { UserTable } from "@/components/user-table"
-import { Button } from "@/components/ui/button"
+import { AddNewUser } from "@/components/UserForms/add-new-user"
 
 const users = () => {
     return (
         <>
             <div className="flex justify-end mb-4">
-                <Button>ajoute</Button>
+                <AddNewUser />
             </div>
             <UserTable />
         </>
@@ -13,3 +13,4 @@ const users = () => {
 }
 
 export default users;
+

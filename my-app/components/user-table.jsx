@@ -28,23 +28,23 @@ import {
 const initialUsers = [
     {
         id: 1,
-        firstName: "John",
-        lastName: "Doe",
-        email: "john.doe@example.com",
+        firstName: "Youssef",
+        lastName: "El Amrani",
+        email: "youssef.elamrani@example.ma",
         role: "admin",
     },
     {
         id: 2,
-        firstName: "Sarah",
-        lastName: "Johnson",
-        email: "sarah.johnson@example.com",
+        firstName: "Salma",
+        lastName: "Bennani",
+        email: "salma.bennani@example.ma",
         role: "auditor",
     },
     {
         id: 3,
-        firstName: "Michael",
-        lastName: "Brown",
-        email: "michael.brown@example.com",
+        firstName: "Omar",
+        lastName: "Alaoui",
+        email: "omar.alaoui@example.ma",
         role: "auditor",
     },
 ]
@@ -66,13 +66,13 @@ export function UserTable() {
                 <TableHeader>
                     <TableRow>
                         <TableHead>
-                            <Badge>Id</Badge>
+                            <Badge>Identifiant</Badge>
                         </TableHead>
                         <TableHead>
-                            <Badge>First Name</Badge>
+                            <Badge>Prénom</Badge>
                         </TableHead>
                         <TableHead>
-                            <Badge>Last Name</Badge>
+                            <Badge>Nom</Badge>
                         </TableHead>
                         <TableHead>
                             <Badge>
@@ -80,7 +80,7 @@ export function UserTable() {
                             </Badge>
                         </TableHead>
                         <TableHead>
-                            <Badge>Role</Badge>
+                            <Badge>Rôle</Badge>
                         </TableHead>
                         <TableHead className="text-right">
                             Action
@@ -106,11 +106,11 @@ export function UserTable() {
                                     </DropdownMenuTrigger>
 
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                        <DropdownMenuItem>Profil</DropdownMenuItem>
+                                        <DropdownMenuItem>Modifier</DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem variant="destructive" onSelect={() => setUserToDelete(user)}>
-                                            Delete
+                                            Supprimer
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>

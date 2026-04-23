@@ -92,7 +92,7 @@ export function RegionsTable() {
                 </TableBody>
                 <TableFooter>
                     <TableRow>
-                        <TableCell colSpan={3}>Total régions : {regions.length}</TableCell>
+                        <TableCell colSpan={5}>Total régions : {regions.length}</TableCell>
                     </TableRow>
                 </TableFooter>
             </Table>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge , BadgeDot } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     AlertDialog,
@@ -128,6 +128,7 @@ export function MissionsTable() {
                             <TableCell>{mission.dateFin}</TableCell>
                             <TableCell>
                                 <Badge variant={mission.statut === "En attente" ? "en_attente" : mission.statut === "En cours" ? "en_cours" : "terminee"}>
+                                    <BadgeDot />
                                     {mission.statut}
                                 </Badge>
                             </TableCell>
@@ -141,11 +142,10 @@ export function MissionsTable() {
                                     </DropdownMenuTrigger>
 
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                                        <DropdownMenuItem>Modifier</DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem variant="destructive" onSelect={() => setMissionToDelete(mission)}>
-                                            Delete
+                                            Supprimer
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
