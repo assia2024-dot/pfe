@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
+import { initialMagasins } from "@/lib/data";
 import { MoreHorizontalIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TablePagination } from "@/components/tables-pagination"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -25,22 +27,20 @@ import {
     TableFooter, TableHead, TableHeader, TableRow, TableCaption
 } from "@/components/ui/table";
 
-const initialMagasins = [
-    { id: 1, nom: "ElectroPlanet Maarif", adresse: "Centre Commercial Maarif, Bd Massira", ville: "Casablanca", actif: true },
-    { id: 2, nom: "ElectroPlanet Hay Riad", adresse: "Avenue Al Amir Moulay Abdallah, Hay Riad", ville: "Rabat", actif: true },
-    { id: 3, nom: "ElectroPlanet Agdal", adresse: "Rue Patrice Lumumba, Agdal", ville: "Rabat", actif: true },
-    { id: 4, nom: "ElectroPlanet Guéliz", adresse: "Avenue Mohammed V, Guéliz", ville: "Marrakech", actif: true },
-    { id: 5, nom: "ElectroPlanet Atlas", adresse: "Route de Fès, Quartier Atlas", ville: "Fès", actif: true },
-    { id: 6, nom: "ElectroPlanet Tanger City Mall", adresse: "Route de Rabat, Tanger City Mall", ville: "Tanger", actif: true },
-    { id: 7, nom: "ElectroPlanet Agadir", adresse: "Avenue du Prince Héritier, Talborjt", ville: "Agadir", actif: false },
-    { id: 8, nom: "ElectroPlanet Meknès", adresse: "Avenue des FAR, Hamria", ville: "Meknès", actif: true },
-    { id: 9, nom: "ElectroPlanet Oujda", adresse: "Boulevard Mohammed VI", ville: "Oujda", actif: true },
-    { id: 10, nom: "ElectroPlanet Kénitra", adresse: "Avenue Mohammed Diouri", ville: "Kénitra", actif: false },
-]
+const DEFAULT_ITEMS_PER_PAGE = 10
+
 
 export function MagasinsTable() {
     const [magasins, setMagasins] = useState(initialMagasins);
     const [magasinToDelete, setMagasinToDelete] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE)
+
+    const totalPages = Math.ceil(magasins.length / itemsPerPage)
+    const paginated = magasins.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    )
 
     function handleDelete(magasin) {
         setMagasins((prev) => prev.filter((m) => m.id !== magasin.id));
@@ -50,24 +50,25 @@ export function MagasinsTable() {
     return (
         <div>
             <Table>
-                <TableCaption>Liste des magasins ElectroPlanet.</TableCaption>
                 <TableHeader>
                     <TableRow>
                         <TableHead><Badge>Id</Badge></TableHead>
                         <TableHead><Badge>Nom</Badge></TableHead>
                         <TableHead><Badge>Adresse</Badge></TableHead>
                         <TableHead><Badge>Ville</Badge></TableHead>
+                        <TableHead><Badge>Region</Badge></TableHead>
                         <TableHead><Badge>Actif</Badge></TableHead>
                         <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {magasins.map((magasin) => (
+                    {paginated.map((magasin) => (
                         <TableRow key={magasin.id}>
                             <TableCell>{magasin.id}</TableCell>
                             <TableCell>{magasin.nom}</TableCell>
                             <TableCell>{magasin.adresse}</TableCell>
                             <TableCell>{magasin.ville}</TableCell>
+                            <TableCell>{magasin.region}</TableCell>
                             <TableCell>
                                 <Badge variant={magasin.actif ? "actif" : "inactif"}>
                                     {magasin.actif ? "Actif" : "Inactif"}
@@ -95,13 +96,23 @@ export function MagasinsTable() {
                             </TableCell>
                         </TableRow>
                     ))}
+                    {Array.from({ length: itemsPerPage - paginated.length }).map((_, i) => (
+                        <TableRow key={`empty-${i}`} className="pointer-events-none h-[49px]">
+                            {Array.from({ length: 8 }).map((_, j) => (
+                                <TableCell key={j}>&nbsp;</TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
                 </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={6}>Total magasins : {magasins.length}</TableCell>
-                    </TableRow>
-                </TableFooter>
             </Table>
+            <TablePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    itemsPerPage={itemsPerPage}
+                    onItemsPerPageChange={setItemsPerPage}
+                    totalItems={magasins.length}
+                />
 
             <AlertDialog
                 open={!!magasinToDelete}

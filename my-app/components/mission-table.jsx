@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { TablePagination } from "@/components/tables-pagination"
+import { initialMissions } from "@/lib/data";
 import { MoreHorizontalIcon } from "lucide-react";
-import { Badge , BadgeDot } from "@/components/ui/badge";
+import { Badge, BadgeDot } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     AlertDialog,
@@ -22,61 +24,54 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
     Table, TableBody, TableCell,
-    TableHead, TableHeader, TableRow,TableCaption 
+    TableHead, TableHeader, TableRow, TableCaption, TableFooter
 } from "@/components/ui/table";
 
-const initialMissions = [
-    {
-        id: 1,
-        titre: "Audit Qualité Q1",
-        magasin: "ElectroPlanet Casablanca Maarif",
-        auditeur: "Karim Benali",
-        dateDebut: "2024-01-15",
-        dateFin: "2024-01-20",
-        statut: "Terminée",
-    },
-    {
-        id: 2,
-        titre: "Contrôle Stock Hiver",
-        magasin: "ElectroPlanet Rabat Agdal",
-        auditeur: "Fatima Zahra Idrissi",
-        dateDebut: "2024-02-01",
-        dateFin: "2024-02-05",
-        statut: "En cours",
-    },
-    {
-        id: 3,
-        titre: "Inspection Sécurité",
-        magasin: "ElectroPlanet Marrakech Guéliz",
-        auditeur: null,
-        dateDebut: "2024-02-10",
-        dateFin: "2024-02-15",
-        statut: "En attente",
-    },
-    {
-        id: 4,
-        titre: "Audit Service Client",
-        magasin: "ElectroPlanet Fès Atlas",
-        auditeur: "Youssef Tazi",
-        dateDebut: "2024-02-20",
-        dateFin: "2024-02-25",
-        statut: "En cours",
-    },
-    {
-        id: 5,
-        titre: "Vérification Affichage Prix",
-        magasin: "ElectroPlanet Tanger Ibn Batouta",
-        auditeur: null,
-        dateDebut: "2024-03-01",
-        dateFin: "2024-03-03",
-        statut: "En attente",
-    },
-]
 
-export function MissionsTable() {
+
+const DEFAULT_ITEMS_PER_PAGE = 10
+
+
+
+
+export function MissionsTable({ search = "", statut = "all", sort = "id", order = "asc" }) {
 
     const [missions, setMissions] = useState(initialMissions);
     const [missionToDelete, setMissionToDelete] = useState(null);
+
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE)
+
+    // reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, statut, sort, order])
+
+    // apply filters + sort
+    const filtered = missions
+        .filter((m) => {
+            const matchSearch = search === "" ||
+                m.titre.toLowerCase().includes(search.toLowerCase()) ||
+                m.magasin.toLowerCase().includes(search.toLowerCase()) ||
+                (m.auditeur?.toLowerCase().includes(search.toLowerCase()))
+
+            const matchStatut = statut === "all" || m.statut === statut
+
+            return matchSearch && matchStatut
+        })
+        .sort((a, b) => {
+            const valA = a[sort] ?? ""
+            const valB = b[sort] ?? ""
+            if (order === "asc") return valA > valB ? 1 : -1
+            return valA < valB ? 1 : -1
+        })
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const paginated = filtered.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    )
+
 
     function handleDelete(mission) {
         setMissions((prev) => prev.filter((m) => m.id !== mission.id));
@@ -86,7 +81,6 @@ export function MissionsTable() {
     return (
         <div>
             <Table>
-                <TableCaption>Liste des missions d'audit récentes.</TableCaption>
                 <TableHeader>
                     <TableRow>
                         <TableHead>
@@ -117,8 +111,8 @@ export function MissionsTable() {
                         </TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
-                    {missions.map((mission) => (
+                <TableBody >
+                    {paginated.map((mission) => (
                         <TableRow key={mission.id}>
                             <TableCell>{mission.id}</TableCell>
                             <TableCell>{mission.titre}</TableCell>
@@ -130,6 +124,7 @@ export function MissionsTable() {
                                 <Badge variant={mission.statut === "En attente" ? "en_attente" : mission.statut === "En cours" ? "en_cours" : "terminee"}>
                                     <BadgeDot />
                                     {mission.statut}
+
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right">
@@ -152,8 +147,23 @@ export function MissionsTable() {
                             </TableCell>
                         </TableRow>
                     ))}
+                    {Array.from({ length: itemsPerPage - paginated.length }).map((_, i) => (
+                        <TableRow key={`empty-${i}`} className="pointer-events-none h-[49px]">
+                            {Array.from({ length: 8 }).map((_, j) => (
+                                <TableCell key={j}>&nbsp;</TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={setItemsPerPage}
+                totalItems={filtered.length}
+            />
 
             <AlertDialog
                 open={!!missionToDelete}
@@ -179,6 +189,3 @@ export function MissionsTable() {
         </div>
     )
 }
-
-
-//<TableCell><Badge variant={mission.statut.toLowerCase() == "admin" ? "admin" : "auditor"}>{user.role}</Badge></TableCell>

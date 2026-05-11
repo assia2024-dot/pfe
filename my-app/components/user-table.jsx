@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { TablePagination } from "@/components/tables-pagination"
+import {initialUsers} from "@/lib/data"
 import { MoreHorizontalIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,37 +24,45 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
     Table, TableBody, TableCell,
-    TableHead, TableHeader, TableRow, TableCaption
+    TableHead, TableHeader, TableRow, TableCaption, TableFooter
 } from "@/components/ui/table";
 
-const initialUsers = [
-    {
-        id: 1,
-        firstName: "Youssef",
-        lastName: "El Amrani",
-        email: "youssef.elamrani@example.ma",
-        role: "admin",
-    },
-    {
-        id: 2,
-        firstName: "Salma",
-        lastName: "Bennani",
-        email: "salma.bennani@example.ma",
-        role: "auditor",
-    },
-    {
-        id: 3,
-        firstName: "Omar",
-        lastName: "Alaoui",
-        email: "omar.alaoui@example.ma",
-        role: "auditor",
-    },
-]
+const DEFAULT_ITEMS_PER_PAGE = 10
 
-export function UserTable() {
+export function UserTable( { search = "", role = "all", sort = "id", order = "asc" }) {
 
     const [users, setUsers] = useState(initialUsers);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE)
+
+      useEffect(() => {
+        setCurrentPage(1)
+    }, [search, role, sort, order])
+
+    const filtered = users
+        .filter((u) => {
+            const matchSearch = search === "" ||
+                u.firstName.toLowerCase().includes(search.toLowerCase()) ||
+                u.lastName.toLowerCase().includes(search.toLowerCase()) ||
+                u.email.toLowerCase().includes(search.toLowerCase())
+
+            const matchRole = role === "all" || u.role.toLowerCase() === role.toLowerCase()
+
+            return matchSearch && matchRole
+        })
+        .sort((a, b) => {
+            const valA = a[sort] ?? ""
+            const valB = b[sort] ?? ""
+            if (order === "asc") return valA > valB ? 1 : -1
+            return valA < valB ? 1 : -1
+        })
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const paginated = filtered.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    )
 
     function handleDelete(user) {
         setUsers((prev) => prev.filter((u) => u.id !== user.id));
@@ -61,8 +71,8 @@ export function UserTable() {
 
     return (
         <>
+
             <Table>
-                <TableCaption>Liste des utilisateurs et leurs rôles.</TableCaption>
                 <TableHeader>
                     <TableRow>
                         <TableHead>
@@ -88,7 +98,7 @@ export function UserTable() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {users.map((user) => (
+                    {paginated.map((user) => (
                         <TableRow key={user.id}>
                             <TableCell>{user.id}</TableCell>
                             <TableCell>{user.firstName}</TableCell>
@@ -117,8 +127,23 @@ export function UserTable() {
                             </TableCell>
                         </TableRow>
                     ))}
+                    {Array.from({ length: itemsPerPage - paginated.length }).map((_, i) => (
+                        <TableRow key={`empty-${i}`} className="pointer-events-none h-[49px]">
+                            {Array.from({ length: 6 }).map((_, j) => (
+                                <TableCell key={j}>&nbsp;</TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
                 </TableBody>
             </Table>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={setItemsPerPage}
+                totalItems={filtered.length}
+            />
 
             <AlertDialog
                 open={!!userToDelete}

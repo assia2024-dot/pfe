@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import {user} from "@/lib/data"
 import Link from "next/link"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { ChevronRight, Home } from "lucide-react"
@@ -54,34 +55,41 @@ export function BreadcrumbHeader() {
     }
   }
 
-  return (
-<header className="flex items-center gap-3 border-b px-4 py-3 bg-background shrink-0">
-  {/* Show on mobile always, show on desktop only when collapsed */}
-  <SidebarTrigger className="text-foreground hover:bg-accent md:hidden" />
-  {state === "collapsed" && (
-    <SidebarTrigger className="text-foreground hover:bg-accent hidden md:flex" />
-  )}
-  {state === "collapsed" && <div className="w-px h-5 bg-border hidden md:block" />}
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground transition-colors">
-          <Home className="w-4 h-4" />
-        </Link>
-        {parent && (
-          <>
-            <ChevronRight className="w-4 h-4" />
-            <span>{parent}</span>
-          </>
-        )}
-        {current && (
-          <>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-foreground font-medium">{current}</span>
-          </>
-        )}
-      </nav>
-      <div className="ml-auto">
-        <ModeToggle />
-      </div>
-    </header>
-  )
+return (
+  <header className="flex items-center gap-3 border-b px-4 py-3 bg-background shrink-0">
+    <SidebarTrigger className="text-foreground hover:bg-accent md:hidden" />
+    {state === "collapsed" && (
+      <SidebarTrigger className="text-foreground hover:bg-accent hidden md:flex" />
+    )}
+    {state === "collapsed" && <div className="w-px h-5 bg-border hidden md:block" />}
+
+    <nav className="flex items-center gap-1 text-sm text-muted-foreground flex-1">
+      <Link href="/" className="hover:text-foreground transition-colors">
+        <Home className="w-4 h-4" />
+      </Link>
+      {parent && (
+        <>
+          <ChevronRight className="w-4 h-4" />
+          <span>{parent}</span>
+        </>
+      )}
+      {current && (
+        <>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">{current}</span>
+        </>
+      )}
+      {/* Show greeting only on home page */}
+      {!parent && !current && (
+        <span className="text-foreground font-medium ml-2 font-serif text-base">
+          Bonjour, {user.name.toUpperCase()} 
+        </span>
+      )}
+    </nav>
+
+    <div className="ml-auto">
+      <ModeToggle />
+    </div>
+  </header>
+)
 }

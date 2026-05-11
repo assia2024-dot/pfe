@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react";
+import {user } from "@/lib/data";
 import {
   Collapsible,
   CollapsibleContent,
@@ -54,10 +55,6 @@ import {
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
-const user = {
-  name: "DAHIR Assia",
-  email: "dahirassia@gmail.com"
-}
 
 const items = [
   {
@@ -135,8 +132,8 @@ function SidebarUserFooter() {
                   <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium text-base">{user.name.toUpperCase()}</span>
+                  <span className="truncate text-sm">{user.role.toLowerCase()}</span>
                 </div>
                 <ChevronsUpDownIcon className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -154,8 +151,8 @@ function SidebarUserFooter() {
                     <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs">{user.email}</span>
+                    <span className="truncate font-medium">{user.name.toUpperCase()}</span>
+                    <span className="truncate text-xs">{user.email.toLowerCase()}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
