@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { initialMagasins } from "@/lib/data";
 import { MoreHorizontalIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -30,14 +30,37 @@ import {
 const DEFAULT_ITEMS_PER_PAGE = 10
 
 
-export function MagasinsTable() {
+export function MagasinsTable({ search = "", actif = "all", sort = "id", order = "asc" }) {
+
     const [magasins, setMagasins] = useState(initialMagasins);
     const [magasinToDelete, setMagasinToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE)
 
-    const totalPages = Math.ceil(magasins.length / itemsPerPage)
-    const paginated = magasins.slice(
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, actif, sort, order])
+
+    const filtered = magasins
+        .filter((m) => {
+            const matchSearch = search === "" ||
+                m.nom.toLowerCase().includes(search.toLowerCase()) ||
+                m.ville.toLowerCase().includes(search.toLowerCase()) ||
+                m.adresse.toLowerCase().includes(search.toLowerCase())
+
+            const matchActif = actif === "all" || String(m.actif) === actif
+
+            return matchSearch && matchActif
+        })
+        .sort((a, b) => {
+            const valA = a[sort] ?? ""
+            const valB = b[sort] ?? ""
+            if (order === "asc") return valA > valB ? 1 : -1
+            return valA < valB ? 1 : -1
+        })
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const paginated = filtered.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     )

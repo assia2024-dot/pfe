@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
 import { initialElements } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
@@ -29,15 +29,36 @@ import {
 
 
 const DEFAULT_ITEMS_PER_PAGE = 10
+export function ElementsAuditTable({ search = "", statut = "all", sort = "id", order = "asc" }) {
 
-export function ElementsAuditTable() {
     const [elements, setElements] = useState(initialElements);
     const [elementToDelete, setElementToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE)
 
-    const totalPages = Math.ceil(elements.length / itemsPerPage)
-    const paginated = elements.slice(
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, statut, sort, order])
+
+    const filtered = elements
+        .filter((e) => {
+            const matchSearch = search === "" ||
+                e.nom.toLowerCase().includes(search.toLowerCase()) ||
+                e.description.toLowerCase().includes(search.toLowerCase())
+
+            const matchStatut = statut === "all" || e.statut === statut
+
+            return matchSearch && matchStatut
+        })
+        .sort((a, b) => {
+            const valA = a[sort] ?? ""
+            const valB = b[sort] ?? ""
+            if (order === "asc") return valA > valB ? 1 : -1
+            return valA < valB ? 1 : -1
+        })
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const paginated = filtered.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     )

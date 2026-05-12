@@ -89,7 +89,6 @@ const items = [
     url: "#",
     icon: <Map />,
     items: [
-      { title: "Gestion des Régions", url: "/region" },
       { title: "Gestion des Magasins", url: "/magasin" },
     ],
   },
