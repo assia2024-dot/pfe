@@ -20,7 +20,10 @@ public class TwoFACode {
     private String email;
 
     @Column(nullable = false)
-    private String code;  // 6-digit code
+    private String code;
+
+    @Column(nullable = false)
+    private String type;  // "LOGIN" or "RESET_PASSWORD"
 
     @Column(nullable = false)
     private LocalDateTime expiration;

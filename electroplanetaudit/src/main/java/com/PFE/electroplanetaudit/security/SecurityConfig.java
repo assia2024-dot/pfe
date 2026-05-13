@@ -39,7 +39,12 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints (no authentication needed)
-                        .requestMatchers("/api/auth/login", "/api/auth/verify-2fa").permitAll()
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/verify-2fa" ,
+                                "/api/auth/forgot-password",
+                                "/api/auth/verify-reset-code",
+                                "/api/auth/reset-password"  ).permitAll()
                         // H2 console
                         .requestMatchers("/h2-console/**").permitAll()
                         // All other endpoints require authentication

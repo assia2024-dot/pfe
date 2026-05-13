@@ -24,6 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TwoFAService twoFAService;
 
     // Convert Entity to DTO
     private UserResponseDTO convertToDTO(User user) {
@@ -79,6 +80,11 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public boolean userExistsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     // ===== GET USER BY ID (ADMIN only) =====
     @Transactional(readOnly = true)
     public UserResponseDTO getUserById(Long id) {
@@ -109,6 +115,27 @@ public class UserService {
 
         return userRepository.findAllWithFilters(keyword, roleEnum, actif, pageable)
                 .map(this::convertToDTO);
+    }
+
+    // Add this method to UserService
+    @Transactional
+    public boolean resetPassword(String email, String code, String newPassword) {
+        // Verify the reset code
+        boolean isCodeValid = twoFAService.verifyResetCode(email, code);
+
+        if (!isCodeValid) {
+            return false;
+        }
+
+        // Find user
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Update password
+        user.setMotDePasse(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return true;
     }
 
     // ===== UPDATE USER (ADMIN only - full update) =====

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Code</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f1f5;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background-color: #ff0f0f;
+            padding: 16px 24px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffd3d3;
+            font-size: 17.3px;
+            margin: 0 0 16px 0;
+        }
+        .header p {
+            color: #ffd3d3;
+            font-size: 14.7px;
+            margin: 0;
+        }
+        .content {
+            padding: 24px;
+            text-align: center;
+        }
+        .code {
+            font-size: 48px;
+            font-weight: bold;
+            letter-spacing: 10px;
+            color: #0f0000;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f0f1f5;
+            border-radius: 10px;
+        }
+        .footer {
+            background-color: #5d0000;
+            padding: 20px;
+            text-align: center;
+            color: #ffffff;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Votre code de vérification en deux étapes</h1>
+        <p>Pour la connexion à votre compte</p>
+    </div>
+
+    <div class="content">
+        <p>Bonjour,</p>
+        <p>Voici votre code de sécurité pour la vérification en deux étapes. Veuillez ne pas partager ce code avec qui que ce soit. Ce code expirera dans 15 minutes.</p>
+
+        <div class="code" th:text="${code}">123456</div>
+
+        <p>Si vous n'avez pas demandé ce code, veuillez ignorer cet e-mail et ne pas l'utiliser. Votre compte est en sécurité.</p>
+        <p>Merci,<br>L'équipe de sécurité</p>
+    </div>
+
+    <div class="footer">
+        <p>Ce code est généré automatiquement. Ne répondez pas à cet e-mail.</p>
+        <p>© <span th:text="${year}">2026</span> ElectroPlanet Audit. Tous droits réservés.</p>
+    </div>
+</div>
+</body>
+</html>

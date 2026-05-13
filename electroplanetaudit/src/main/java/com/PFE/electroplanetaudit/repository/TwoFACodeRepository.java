@@ -13,12 +13,13 @@ import java.util.Optional;
 @Repository
 public interface TwoFACodeRepository extends JpaRepository<TwoFACode, Long> {
 
-    Optional<TwoFACode> findByEmailAndCodeAndUsedFalseAndExpirationAfter(
-            String email, String code, LocalDateTime now
+    // ONE method for finding by email, code, type, used=false, and not expired
+    Optional<TwoFACode> findByEmailAndCodeAndTypeAndUsedFalseAndExpirationAfter(
+            String email, String code, String type, LocalDateTime now
     );
 
-    @Modifying  // ← ADD THIS
-    @Transactional  // ← ADD THIS
-    @Query("DELETE FROM TwoFACode t WHERE t.email = :email AND (t.used = true OR t.expiration < :now)")
-    void deleteByEmailAndUsedTrueOrExpirationBefore(@Param("email") String email, @Param("now") LocalDateTime now);
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM TwoFACode t WHERE t.email = :email AND t.type = :type AND (t.used = true OR t.expiration < :now)")
+    void deleteOldCodes(@Param("email") String email, @Param("type") String type, @Param("now") LocalDateTime now);
 }

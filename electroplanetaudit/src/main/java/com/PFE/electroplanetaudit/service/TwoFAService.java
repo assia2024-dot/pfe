@@ -18,13 +18,24 @@ public class TwoFAService {
     private EmailService emailService;
 
     private static final SecureRandom random = new SecureRandom();
-    private static final int CODE_EXPIRATION_MINUTES = 5;
+    private static final int CODE_EXPIRATION_MINUTES = 15;
 
-    // Generate 6-digit code and send to email
-    @Transactional  // ← ADD THIS ANNOTATION
-    public String generateAndSendCode(String email) {
-        // Delete old codes for this email
-        twoFACodeRepository.deleteByEmailAndUsedTrueOrExpirationBefore(email, LocalDateTime.now());
+    // Generate and send code for LOGIN
+    @Transactional
+    public String generateAndSendLoginCode(String email) {
+        return generateAndSendCode(email, "LOGIN");
+    }
+
+    // Generate and send code for RESET PASSWORD
+    @Transactional
+    public String generateAndSendResetCode(String email) {
+        return generateAndSendCode(email, "RESET_PASSWORD");
+    }
+
+    // Generic method to generate and send code
+    private String generateAndSendCode(String email, String type) {
+        // Delete old codes for this email and type
+        twoFACodeRepository.deleteOldCodes(email, type, LocalDateTime.now());
 
         // Generate 6-digit code (100000 to 999999)
         String code = String.format("%06d", random.nextInt(900000) + 100000);
@@ -33,24 +44,40 @@ public class TwoFAService {
         TwoFACode twoFACode = TwoFACode.builder()
                 .email(email)
                 .code(code)
+                .type(type)
                 .expiration(LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES))
                 .used(false)
                 .build();
         twoFACodeRepository.save(twoFACode);
 
-        // Send email
-        emailService.sendTwoFACode(email, code);
+        // Send email based on type
+        if ("LOGIN".equals(type)) {
+            emailService.sendTwoFACode(email, code);
+        } else {
+            emailService.sendPasswordResetCode(email, code);
+        }
 
         return code;
     }
 
-    // Verify the 6-digit code
-    @Transactional  // ← ADD THIS ANNOTATION
-    public boolean verifyCode(String email, String code) {
+    // Verify code for LOGIN
+    @Transactional
+    public boolean verifyLoginCode(String email, String code) {
+        return verifyCode(email, code, "LOGIN");
+    }
+
+    // Verify code for RESET PASSWORD
+    @Transactional
+    public boolean verifyResetCode(String email, String code) {
+        return verifyCode(email, code, "RESET_PASSWORD");
+    }
+
+    // Generic verify method
+    private boolean verifyCode(String email, String code, String type) {
         LocalDateTime now = LocalDateTime.now();
 
         return twoFACodeRepository
-                .findByEmailAndCodeAndUsedFalseAndExpirationAfter(email, code, now)
+                .findByEmailAndCodeAndTypeAndUsedFalseAndExpirationAfter(email, code, type, now)
                 .map(twoFACode -> {
                     // Mark code as used
                     twoFACode.setUsed(true);

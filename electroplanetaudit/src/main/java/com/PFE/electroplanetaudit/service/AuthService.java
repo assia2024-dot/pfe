@@ -23,48 +23,44 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // Step 1: Validate credentials, send 2FA code
     public boolean validateCredentialsAndSendCode(String email, String rawPassword) {
         Optional<User> userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isEmpty()) {
-            return false; // User not found
+            return false;
         }
 
         User user = userOpt.get();
 
         if (!user.getActif()) {
-            return false; // User is disabled
+            return false;
         }
 
-        // Check password (using BCrypt)
         if (!passwordEncoder.matches(rawPassword, user.getMotDePasse())) {
-            return false; // Wrong password
+            return false;
         }
 
-        // Generate and send 2FA code
-        twoFAService.generateAndSendCode(email);
+        // Use login-specific method
+        twoFAService.generateAndSendLoginCode(email);
 
         return true;
     }
 
-    // Step 2: Verify 2FA code and generate JWT
     public String verify2FAAndGenerateToken(String email, String code) {
-        // Verify the 2FA code
-        boolean isValid = twoFAService.verifyCode(email, code);
+        // Use login-specific verify
+        boolean isValid = twoFAService.verifyLoginCode(email, code);
 
         if (!isValid) {
-            return null; // Invalid or expired code
+            return null;
         }
 
-        // Get user details
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
             return null;
         }
 
-        // Generate JWT token
         return jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRole().name());
     }
+
 }

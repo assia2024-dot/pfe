@@ -24,6 +24,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByRole(Role role);
 
+
     List<User> findByActifTrue();
 
     // Search by nom, prenom, email
