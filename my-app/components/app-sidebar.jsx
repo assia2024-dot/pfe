@@ -52,7 +52,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 
 
@@ -70,6 +70,7 @@ const items = [
     title: "Utilisateurs & Rôles",
     url: "#",
     icon: <UserRoundCog />,
+    isActive: true,
     items: [
       { title: "Gestion des utilisateurs", url: "/users" }
     ],
@@ -78,6 +79,7 @@ const items = [
     title: "Missions",
     url: "#",
     icon: <ListTodo />,
+    isActive: true,
     items: [
       { title: "Gestion des missions", url: "/missions" },
       { title: "Gestion des elements d'audit", url: "/elementAudit" },
@@ -88,6 +90,7 @@ const items = [
     title: "Entités",
     url: "#",
     icon: <Map />,
+    isActive: true,
     items: [
       { title: "Gestion des Magasins", url: "/magasin" },
     ],
@@ -96,6 +99,7 @@ const items = [
     title: "Audits externes (Invités)",
     url: "#",
     icon: <HatGlasses />,
+    isActive: true,
     items: [
       { title: "Générer un lien d'audit", url: "/audits/lien" },
       { title: "Historique des liens envoyés", url: "/audits/historique" },
@@ -112,9 +116,20 @@ function getInitials(name) {
     .slice(0, 2)
 }
 
+
+
+
+
 function SidebarUserFooter() {
   const { isMobile } = useSidebar()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  
+  const router = useRouter()
+
+  const handleLogout = () => {
+    setShowLogoutDialog(false)
+    router.push("/login") // Redirect to login page
+  }
 
     return (
     <>
@@ -193,7 +208,7 @@ function SidebarUserFooter() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-<AlertDialogAction onClick={() => setShowLogoutDialog(false)}>
+<AlertDialogAction onClick={handleLogout}>
     Déconnexion
 </AlertDialogAction>
           </AlertDialogFooter>
@@ -209,8 +224,8 @@ function SidebarBrand() {
   return (
     <SidebarHeader className="p-3">
       <div className="flex items-center gap-3">
-        <div className="bg-gray-800 p-2 rounded-md flex-shrink-0">
-          <Building2 className="w-4 h-4 text-white" />
+        <div className="flex-shrink-0">
+          <img src="/logo2.png" alt="ElectroPlanet" className="w-8 h-8 rounded-md" />
         </div>
         {state === "expanded" && (
           <>
