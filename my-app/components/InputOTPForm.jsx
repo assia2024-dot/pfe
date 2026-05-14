@@ -1,5 +1,5 @@
 "use client"
-
+import { authService } from "@/services/authService"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -32,6 +32,10 @@ export function InputOTPForm() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [email, setEmail] = useState("")
   const router = useRouter()
+  const [error, setError] = useState("")
+  const [resendSuccess, setResendSuccess] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+
 
   useEffect(() => {
     const userEmail = sessionStorage.getItem("userEmail")
@@ -46,22 +50,63 @@ export function InputOTPForm() {
     if (otp.length !== 6) return
 
     setIsVerifying(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const response = await authService.verify2fa(email, otp)
+      const data = response.data
 
-    if (otp.length === 6) {
+      // Store token
+      localStorage.setItem("token", data.token)
+
+      // Store user info
+      localStorage.setItem("user", JSON.stringify({
+        userId: data.userId,
+        userCode: data.userCode,
+        nom: data.nom,
+        prenom: data.prenom,
+        email: data.email,
+        role: data.role,
+      }))
+
       sessionStorage.removeItem("userEmail")
       router.push("/")
+    } catch (error) {
+      const message = error.response?.data?.message || "Code incorrect ou expiré"
+      setError(message)
+    } finally {
+      setIsVerifying(false)
     }
-    setIsVerifying(false)
   }
 
+
+
   const handleResendCode = async () => {
-    console.log("Resending code to:", email)
+    try {
+      await authService.resendLoginCode(email)
+      setError("")
+      setResendSuccess(true)
+      setResendCooldown(60)
+      setTimeout(() => setResendSuccess(false), 4000)
+
+      // Start countdown
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    } catch (error) {
+      setError("Veuillez patienter 60 secondes avant de demander un nouveau code.")
+    }
   }
 
   const handleContactSupport = () => {
     window.location.href = "mailto:electroplanetaudit@gmail.com"
   }
+
+
 
   return (
     <div className="bg-muted/50 flex min-h-screen w-full flex-col items-center justify-center p-4">
@@ -81,6 +126,16 @@ export function InputOTPForm() {
         </CardHeader>
         <CardContent>
           <Field>
+            {resendSuccess && (
+              <div className="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-800 border border-green-200">
+                Code renvoyé avec succès. Vérifiez votre email.
+              </div>
+            )}
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 border border-red-200">
+                {error}
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <FieldLabel htmlFor="otp-verification">
                 Code de vérification
@@ -89,9 +144,10 @@ export function InputOTPForm() {
                 variant="outline"
                 size="xs"
                 onClick={handleResendCode}
+                disabled={resendCooldown > 0}
               >
                 <RefreshCwIcon className="mr-2 h-3 w-3" />
-                Renvoyer le code
+                {resendCooldown > 0 ? `Renvoyer (${resendCooldown}s)` : "Renvoyer le code"}
               </Button>
             </div>
             <InputOTP

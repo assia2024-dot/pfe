@@ -1,5 +1,5 @@
 "use client"
-
+import { authService } from "@/services/authService"
 import { useState } from "react"
 import { useForm } from "@tanstack/react-form"
 import { useRouter } from "next/navigation"
@@ -34,6 +34,7 @@ const forgotPasswordSchema = z.object({
 
 export function ForgotPasswordForm() {
   const router = useRouter()
+  const [error, setError] = useState("")
 
   const form = useForm({
     defaultValues: {
@@ -43,12 +44,13 @@ export function ForgotPasswordForm() {
       onChange: forgotPasswordSchema,
     },
     onSubmit: async ({ value }) => {
-      // Store email for later use
-      sessionStorage.setItem("resetEmail", value.email)
-      // Simulate API call to send reset code
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      // Redirect to OTP verification page
-      router.push("/reset-password-verify")
+      try {
+        await authService.forgotPassword(value.email)
+        sessionStorage.setItem("resetEmail", value.email)
+        router.push("/reset-password-verify")
+      } catch (err) {
+        setError(err.response?.data?.message || "Email introuvable ou erreur serveur.")
+      }
     },
   })
 
@@ -60,7 +62,7 @@ export function ForgotPasswordForm() {
           <img src="/logo2.png" alt="Audit ElectroPlanet" className="size-25" />
         </a>
       </div>
-      
+
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Mot de passe oublié ?</CardTitle>
@@ -69,6 +71,11 @@ export function ForgotPasswordForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 border border-red-200">
+              {error}
+            </div>
+          )}
           <Form
             onSubmit={(e) => {
               e.preventDefault()
@@ -115,7 +122,7 @@ export function ForgotPasswordForm() {
                       "Envoyer le code"
                     )}
                   </Button>
-                  
+
                   <Button
                     type="button"
                     variant="outline"
@@ -130,7 +137,7 @@ export function ForgotPasswordForm() {
           </Form>
         </CardContent>
       </Card>
-      
+
       <p className="text-muted-foreground mt-8 text-center text-xs">
         © 2025 Audit ElectroPlanet. Tous droits réservés.
       </p>

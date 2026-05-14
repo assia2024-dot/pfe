@@ -1,5 +1,6 @@
 "use client"
 
+import { authService } from "@/services/authService"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { RefreshCwIcon, ArrowLeft, HelpCircle } from "lucide-react"
@@ -30,6 +31,9 @@ export function ResetPasswordVerifyForm() {
     const [otp, setOtp] = useState("")
     const [isVerifying, setIsVerifying] = useState(false)
     const [email, setEmail] = useState("")
+    const [error, setError] = useState("")
+    const [resendSuccess, setResendSuccess] = useState(false)
+    const [resendCooldown, setResendCooldown] = useState(0)
     const router = useRouter()
 
     useEffect(() => {
@@ -43,24 +47,39 @@ export function ResetPasswordVerifyForm() {
 
     const handleVerify = async () => {
         if (otp.length !== 6) return
-
         setIsVerifying(true)
-        // Simulate OTP verification - in real app, you'd verify with backend
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-
-        if (otp.length === 6) {
-            // Store that OTP is verified
-            sessionStorage.setItem("otpVerified", "true")
-            // Redirect to reset password page
+        try {
+            await authService.verifyResetCode(email, otp)
+            // Store verified code to use in reset-password page
+            sessionStorage.setItem("resetCode", otp)
             router.push("/reset-password")
+        } catch (err) {
+            setError(err.response?.data?.message || "Code incorrect ou expiré.")
+        } finally {
+            setIsVerifying(false)
         }
-        setIsVerifying(false)
     }
 
     const handleResendCode = async () => {
-        console.log("Resending code to:", email)
-        // Simulate resending code
-        alert(`Un nouveau code a été envoyé à ${email}`)
+        try {
+            await authService.resendResetCode(email)
+            setError("")
+            setResendSuccess(true)
+            setResendCooldown(60)
+            setTimeout(() => setResendSuccess(false), 4000)
+
+            const interval = setInterval(() => {
+                setResendCooldown((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(interval)
+                        return 0
+                    }
+                    return prev - 1
+                })
+            }, 1000)
+        } catch {
+            setError("Veuillez patienter 60 secondes avant de demander un nouveau code.")
+        }
     }
 
     const handleContactSupport = () => {
@@ -84,6 +103,16 @@ export function ResetPasswordVerifyForm() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {resendSuccess && (
+                        <div className="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-800 border border-green-200">
+                            Code renvoyé avec succès. Vérifiez votre email.
+                        </div>
+                    )}
+                    {error && (
+                        <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 border border-red-200">
+                            {error}
+                        </div>
+                    )}
                     <Field>
                         <div className="flex items-center justify-between">
                             <FieldLabel htmlFor="otp-verification">
@@ -93,9 +122,10 @@ export function ResetPasswordVerifyForm() {
                                 variant="outline"
                                 size="xs"
                                 onClick={handleResendCode}
+                                disabled={resendCooldown > 0}
                             >
                                 <RefreshCwIcon className="mr-2 h-3 w-3" />
-                                Renvoyer le code
+                                {resendCooldown > 0 ? `Renvoyer (${resendCooldown}s)` : "Renvoyer le code"}
                             </Button>
                         </div>
                         <InputOTP
@@ -145,8 +175,6 @@ export function ResetPasswordVerifyForm() {
                             "Vérifier le code"
                         )}
                     </Button>
-
-                    {/* Support Contact Line */}
                     <div className="text-center">
                         <p className="text-sm text-muted-foreground">
                             Vous rencontrez des difficultés pour vous connecter?{" "}

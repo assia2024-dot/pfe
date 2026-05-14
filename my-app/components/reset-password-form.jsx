@@ -1,5 +1,5 @@
 "use client"
-
+import { authService } from "@/services/authService"
 import { useState, useEffect } from "react"
 import { useForm } from "@tanstack/react-form"
 import { useRouter } from "next/navigation"
@@ -42,13 +42,12 @@ export function ResetPasswordForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
   const router = useRouter()
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    // Check if OTP was verified
-    const otpVerified = sessionStorage.getItem("otpVerified")
+    const resetCode = sessionStorage.getItem("resetCode")
     const resetEmail = sessionStorage.getItem("resetEmail")
-    
-    if (!otpVerified || !resetEmail) {
+    if (!resetCode || !resetEmail) {
       router.push("/forgot-password")
     }
   }, [router])
@@ -63,16 +62,18 @@ export function ResetPasswordForm() {
     },
     onSubmit: async ({ value }) => {
       setIsResetting(true)
-      // Simulate password reset API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      
-      // Clear session storage
-      sessionStorage.removeItem("resetEmail")
-      sessionStorage.removeItem("otpVerified")
-      
-      // Redirect to login page
-      router.push("/login?reset=success")
-      setIsResetting(false)
+      try {
+        const email = sessionStorage.getItem("resetEmail")
+        const code = sessionStorage.getItem("resetCode")
+        await authService.resetPassword(email, code, value.password)
+        sessionStorage.removeItem("resetEmail")
+        sessionStorage.removeItem("resetCode")
+        router.push("/login?reset=success")
+      } catch (err) {
+        setError(err.response?.data?.message || "Erreur lors de la réinitialisation.")
+      } finally {
+        setIsResetting(false)
+      }
     },
   })
 
@@ -83,7 +84,7 @@ export function ResetPasswordForm() {
           <img src="/logo2.png" alt="Audit ElectroPlanet" className="size-25" />
         </a>
       </div>
-      
+
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Nouveau mot de passe</CardTitle>
@@ -92,6 +93,11 @@ export function ResetPasswordForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 border border-red-200">
+              {error}
+            </div>
+          )}
           <Form
             onSubmit={(e) => {
               e.preventDefault()
@@ -195,7 +201,7 @@ export function ResetPasswordForm() {
           </Form>
         </CardContent>
       </Card>
-      
+
       <p className="text-muted-foreground mt-8 text-center text-xs">
         © 2025 Audit ElectroPlanet. Tous droits réservés.
       </p>

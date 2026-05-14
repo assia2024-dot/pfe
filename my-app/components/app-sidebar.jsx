@@ -1,6 +1,6 @@
 "use client"
-import { useState } from "react";
-import {user } from "@/lib/data";
+import { authService } from "@/services/authService"
+import { useState, useEffect } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,14 +13,14 @@ import {
 } from "lucide-react"
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
   Sidebar,
@@ -123,15 +123,29 @@ function getInitials(name) {
 function SidebarUserFooter() {
   const { isMobile } = useSidebar()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
-  
   const router = useRouter()
+  const [user, setUser] = useState({ nom: "", prenom: "", email: "", role: "" })
 
-  const handleLogout = () => {
-    setShowLogoutDialog(false)
-    router.push("/login") // Redirect to login page
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("user") || "{}")
+    setUser(stored)
+  }, [])
+  const displayName = `${user.nom || ""} ${user.prenom || ""}`.trim() || "Utilisateur"
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } catch {
+      // Even if it fails, we still logout locally
+    } finally {
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      setShowLogoutDialog(false)
+      router.push("/login")
+    }
   }
-
-    return (
+  return (
     <>
       <SidebarMenu>
         <SidebarMenuItem>
@@ -142,12 +156,12 @@ function SidebarUserFooter() {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
+                  <AvatarImage src={user.avatar} alt={displayName} />
+                  <AvatarFallback className="rounded-lg">{getInitials(displayName)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium text-base">{user.name.toUpperCase()}</span>
-                  <span className="truncate text-sm">{user.role.toLowerCase()}</span>
+                  <span className="truncate font-medium text-base">{displayName.toUpperCase()}</span>
+                  <span className="truncate text-sm">{(user.role || "").toLowerCase()}</span>
                 </div>
                 <ChevronsUpDownIcon className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -161,12 +175,12 @@ function SidebarUserFooter() {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
+                    <AvatarImage src={user.avatar} alt={displayName} />
+                    <AvatarFallback className="rounded-lg">{getInitials(displayName)}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name.toUpperCase()}</span>
-                    <span className="truncate text-xs">{user.email.toLowerCase()}</span>
+                    <span className="truncate font-medium">{displayName.toUpperCase()}</span>
+                    <span className="truncate text-xs">{(user.email || "").toLowerCase()}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -208,9 +222,9 @@ function SidebarUserFooter() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-<AlertDialogAction onClick={handleLogout}>
-    Déconnexion
-</AlertDialogAction>
+            <AlertDialogAction onClick={handleLogout}>
+              Déconnexion
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

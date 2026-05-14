@@ -51,8 +51,8 @@ const Users = () => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Tous</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="auditor">Auditeur</SelectItem>
+                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        <SelectItem value="AUDITEUR">Auditeur</SelectItem>
                     </SelectContent>
                 </Select>
                 <Select value={sort} onValueChange={setSort}>
@@ -61,8 +61,8 @@ const Users = () => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="id">ID</SelectItem>
-                        <SelectItem value="firstName">Prénom</SelectItem>
-                        <SelectItem value="lastName">Nom</SelectItem>
+                        <SelectItem value="prenom">Prénom</SelectItem>
+                        <SelectItem value="nom">Nom</SelectItem>
                         <SelectItem value="email">Email</SelectItem>
                         <SelectItem value="role">Rôle</SelectItem>
                     </SelectContent>

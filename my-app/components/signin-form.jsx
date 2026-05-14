@@ -1,5 +1,5 @@
 "use client"
-
+import { authService } from "@/services/authService"
 import { useState, useEffect } from "react"
 import { useForm } from "@tanstack/react-form"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -56,10 +56,17 @@ export function SigninForm() {
       onChange: signinSchema,
     },
     onSubmit: async ({ value }) => {
-      // Store email in sessionStorage to use in 2FA page
-      sessionStorage.setItem("userEmail", value.email)
-      // Redirect to 2FA verification page
-      router.push("/verify")
+      try {
+        await authService.login(value.email, value.password)
+        // Login successful → backend sends 2FA code to email
+        sessionStorage.setItem("userEmail", value.email)
+        router.push("/verify")
+      } catch (error) {
+        const message =
+          error.response?.data?.message || "Email ou mot de passe incorrect"
+        // We'll show this error in the form — see below
+        form.setErrorMap({ onSubmit: message })
+      }
     },
   })
 
@@ -81,6 +88,7 @@ export function SigninForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+
           {/* Success Message */}
           {resetSuccess && (
             <div className="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-800 border border-green-200 flex items-center gap-2">
@@ -88,6 +96,15 @@ export function SigninForm() {
               <span>Votre mot de passe a été réinitialisé avec succès. Veuillez vous connecter avec votre nouveau mot de passe.</span>
             </div>
           )}
+          <form.Subscribe selector={(s) => s.errorMap.onSubmit}>
+            {(error) =>
+              error ? (
+                <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 border border-red-200">
+                  {error}
+                </div>
+              ) : null
+            }
+          </form.Subscribe>
 
           <Form
             onSubmit={(e) => {
