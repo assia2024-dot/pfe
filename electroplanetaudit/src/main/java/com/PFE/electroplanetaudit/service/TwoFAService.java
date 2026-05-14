@@ -19,6 +19,7 @@ public class TwoFAService {
 
     private static final SecureRandom random = new SecureRandom();
     private static final int CODE_EXPIRATION_MINUTES = 15;
+    private static final int RESEND_COOLDOWN_SECONDS = 60;
 
     // Generate and send code for LOGIN
     @Transactional
@@ -29,6 +30,36 @@ public class TwoFAService {
     // Generate and send code for RESET PASSWORD
     @Transactional
     public String generateAndSendResetCode(String email) {
+        return generateAndSendCode(email, "RESET_PASSWORD");
+    }
+
+    @Transactional
+    public String resendLoginCode(String email) {
+        // Check cooldown: Can't resend within 60 seconds
+        LocalDateTime oneMinuteAgo = LocalDateTime.now().minusSeconds(RESEND_COOLDOWN_SECONDS);
+
+        TwoFACode recentCode = twoFACodeRepository
+                .findTopByEmailAndTypeAndCreationTimeAfterOrderByCreationTimeDesc(email, "LOGIN", oneMinuteAgo);
+
+        if (recentCode != null) {
+            throw new RuntimeException("Please wait " + RESEND_COOLDOWN_SECONDS + " seconds before requesting another code.");
+        }
+
+        return generateAndSendCode(email, "LOGIN");
+    }
+
+    @Transactional
+    public String resendResetCode(String email) {
+        // Check cooldown
+        LocalDateTime oneMinuteAgo = LocalDateTime.now().minusSeconds(RESEND_COOLDOWN_SECONDS);
+
+        TwoFACode recentCode = twoFACodeRepository
+                .findTopByEmailAndTypeAndCreationTimeAfterOrderByCreationTimeDesc(email, "RESET_PASSWORD", oneMinuteAgo);
+
+        if (recentCode != null) {
+            throw new RuntimeException("Please wait " + RESEND_COOLDOWN_SECONDS + " seconds before requesting another code.");
+        }
+
         return generateAndSendCode(email, "RESET_PASSWORD");
     }
 
@@ -47,6 +78,7 @@ public class TwoFAService {
                 .type(type)
                 .expiration(LocalDateTime.now().plusMinutes(CODE_EXPIRATION_MINUTES))
                 .used(false)
+                .creationTime(LocalDateTime.now())
                 .build();
         twoFACodeRepository.save(twoFACode);
 
@@ -85,5 +117,15 @@ public class TwoFAService {
                     return true;
                 })
                 .orElse(false);
+    }
+
+
+    // Verify reset code WITHOUT marking it as used (just check validity)
+    @Transactional
+    public boolean verifyResetCodeOnly(String email, String code) {
+        LocalDateTime now = LocalDateTime.now();
+        return twoFACodeRepository
+                .findByEmailAndCodeAndTypeAndUsedFalseAndExpirationAfter(email, code, "RESET_PASSWORD", now)
+                .isPresent();
     }
 }

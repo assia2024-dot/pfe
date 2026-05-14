@@ -35,19 +35,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configure(http))
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints (no authentication needed)
+                        // Allow CORS preflight requests
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        // Public endpoints
                         .requestMatchers(
                                 "/api/auth/login",
-                                "/api/auth/verify-2fa" ,
+                                "/api/auth/verify-2fa",
                                 "/api/auth/forgot-password",
                                 "/api/auth/verify-reset-code",
-                                "/api/auth/reset-password"  ).permitAll()
-                        // H2 console
+                                "/api/auth/reset-password",
+                                "/api/auth/resend-login-code",
+                                "/api/auth/resend-reset-code"
+                        ).permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

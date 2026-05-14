@@ -63,4 +63,26 @@ public class AuthService {
         return jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRole().name());
     }
 
+    public boolean verifyResetCode(String email, String code) {
+        // Only check validity, don't mark as used
+        return twoFAService.verifyResetCodeOnly(email, code);
+    }
+
+    public boolean resetPassword(String email, String code, String newPassword) {
+        // This time mark as used
+        boolean isValid = twoFAService.verifyResetCode(email, code);
+        if (!isValid) {
+            return false;
+        }
+
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return false;
+        }
+
+        user.setMotDePasse(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
+
 }

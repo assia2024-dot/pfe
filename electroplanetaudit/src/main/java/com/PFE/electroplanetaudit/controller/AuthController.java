@@ -90,7 +90,7 @@ public class AuthController {
     // Step 2: Verify reset code
     @PostMapping("/verify-reset-code")
     public ResponseEntity<?> verifyResetCode(@Valid @RequestBody VerifyResetCodeRequest request) {
-        boolean isValid = twoFAService.verifyResetCode(request.getEmail(), request.getCode());
+        boolean isValid = twoFAService.verifyResetCodeOnly(request.getEmail(), request.getCode());
 
         if (!isValid) {
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid or expired code."));
@@ -115,5 +115,40 @@ public class AuthController {
     @GetMapping("/test")
     public ResponseEntity<?> test() {
         return ResponseEntity.ok(new MessageResponse("You are authenticated!"));
+    }
+
+    @PostMapping("/resend-login-code")
+    public ResponseEntity<?> resendLoginCode(@Valid @RequestBody ResendCodeRequest request) {
+        try {
+            // Check if user exists
+            if (!userService.userExistsByEmail(request.getEmail())) {
+                return ResponseEntity.ok().body(new MessageResponse("If your email is registered, you will receive a new code."));
+            }
+
+            twoFAService.resendLoginCode(request.getEmail());
+            return ResponseEntity.ok().body(new MessageResponse("New 2FA code sent to your email."));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Failed to resend code. Please try again."));
+        }
+    }
+
+    @PostMapping("/resend-reset-code")
+    public ResponseEntity<?> resendResetCode(@Valid @RequestBody ResendCodeRequest request) {
+        try {
+            if (!userService.userExistsByEmail(request.getEmail())) {
+                return ResponseEntity.ok().body(new MessageResponse("If your email is registered, you will receive a new code."));
+            }
+
+            twoFAService.resendResetCode(request.getEmail());
+            return ResponseEntity.ok().body(new MessageResponse("New reset code sent to your email."));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Failed to resend code. Please try again."));
+        }
     }
 }

@@ -23,11 +23,14 @@ public class TwoFACode {
     private String code;
 
     @Column(nullable = false)
-    private String type;  // "LOGIN" or "RESET_PASSWORD"
+    private String type;
 
     @Column(nullable = false)
     private LocalDateTime expiration;
 
     @Column(nullable = false)
     private Boolean used = false;
+
+    @Column(nullable = false)
+    private LocalDateTime creationTime = LocalDateTime.now();
 }

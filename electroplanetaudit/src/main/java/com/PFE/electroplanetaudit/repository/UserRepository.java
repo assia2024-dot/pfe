@@ -29,11 +29,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Search by nom, prenom, email
     @Query("SELECT u FROM User u WHERE " +
-            "(:keyword IS NULL OR " +
+            "(COALESCE(:keyword, '') = '' OR " +
             "LOWER(u.nom) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(u.prenom) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "AND (:role IS NULL OR u.role = :role) " +
+            "AND (:#{#role} IS NULL OR u.role = :#{#role}) " +
             "AND (:actif IS NULL OR u.actif = :actif)")
     Page<User> findAllWithFilters(@Param("keyword") String keyword,
                                   @Param("role") Role role,

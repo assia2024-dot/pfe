@@ -18,6 +18,13 @@ public interface TwoFACodeRepository extends JpaRepository<TwoFACode, Long> {
             String email, String code, String type, LocalDateTime now
     );
 
+    @Query("SELECT t FROM TwoFACode t WHERE t.email = :email AND t.type = :type AND t.creationTime > :after ORDER BY t.creationTime DESC LIMIT 1")
+    TwoFACode findTopByEmailAndTypeAndCreationTimeAfterOrderByCreationTimeDesc(
+            @Param("email") String email,
+            @Param("type") String type,
+            @Param("after") LocalDateTime after
+    );
+
     @Modifying
     @Transactional
     @Query("DELETE FROM TwoFACode t WHERE t.email = :email AND t.type = :type AND (t.used = true OR t.expiration < :now)")
