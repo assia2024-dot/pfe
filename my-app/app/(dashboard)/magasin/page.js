@@ -82,7 +82,7 @@ const Magasin = () => {
                     <AddNewMagasin />
                 </div>
             </div>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-x-auto rounded-md">
                 <MagasinsTable
                     search={debouncedSearch}
                     actif={actif}
