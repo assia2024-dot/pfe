@@ -21,7 +21,7 @@ import {
 
 const DEFAULT_ITEMS_PER_PAGE = 10
 
-export function UserTable({ search = "", role = "all", sort = "id", order = "asc" }) {
+export function UserTable({ search = "", role = "all", sort = "id", order = "asc" , refreshKey = 0}) {
     const [users, setUsers] = useState([])
     const [totalItems, setTotalItems] = useState(0)
     const [totalPages, setTotalPages] = useState(1)
@@ -30,6 +30,7 @@ export function UserTable({ search = "", role = "all", sort = "id", order = "asc
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [userToDelete, setUserToDelete] = useState(null)
+    const currentUser = JSON.parse(localStorage.getItem("user") || "{}")
 
     useEffect(() => {
         setCurrentPage(1)
@@ -37,7 +38,7 @@ export function UserTable({ search = "", role = "all", sort = "id", order = "asc
 
     useEffect(() => {
         fetchUsers()
-    }, [search, role, sort, order, currentPage, itemsPerPage])
+    }, [search, role, sort, order, currentPage, itemsPerPage , refreshKey])
 
     const fetchUsers = async () => {
         setLoading(true)
@@ -47,7 +48,7 @@ export function UserTable({ search = "", role = "all", sort = "id", order = "asc
                 page: currentPage - 1, // backend is 0-indexed
                 size: itemsPerPage,
                 sortBy: sort,
-                sortDir: order,
+                sortDir: sort === "prenom" ? (order === "asc" ? "desc" : "asc") : order,
             }
             if (search) params.keyword = search
             if (role !== "all") params.role = role
@@ -132,12 +133,14 @@ export function UserTable({ search = "", role = "all", sort = "id", order = "asc
                                                 <Button variant="ghost" size="icon" className="size-8">
                                                     <MoreHorizontalIcon />
                                                 </Button>
+
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>Profil</DropdownMenuItem>
                                                 <DropdownMenuItem>Modifier</DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onSelect={() => userService.toggleActif(user.id, !user.actif).then(fetchUsers)}
+                                                    disabled={user.id === currentUser.userId}
                                                 >
                                                     {user.actif ? "Désactiver" : "Activer"}
                                                 </DropdownMenuItem>

@@ -19,6 +19,7 @@ const Users = () => {
     const [role, setRole] = useState("all")
     const [sort, setSort] = useState("id")
     const [order, setOrder] = useState("asc")
+    const [refreshKey, setRefreshKey] = useState(0)
 
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(search), 500)
@@ -81,7 +82,7 @@ const Users = () => {
                     </Button>
                 )}
                 <div className="ml-auto">
-                    <AddNewUser />
+                    <AddNewUser onSuccess={() => setRefreshKey(k => k + 1)} />
                 </div>
             </div>
             <div className="overflow-x-auto rounded-md">
@@ -90,6 +91,7 @@ const Users = () => {
                     role={role}
                     sort={sort}
                     order={order}
+                    refreshKey={refreshKey}
                 />
             </div>
         </div>

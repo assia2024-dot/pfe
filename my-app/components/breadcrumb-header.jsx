@@ -1,7 +1,7 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-import {user} from "@/lib/data"
 import Link from "next/link"
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { ChevronRight, Home } from "lucide-react"
@@ -41,8 +41,17 @@ const items = [
 ]
 
 export function BreadcrumbHeader() {
-  const pathname = usePathname()
-  const { state } = useSidebar()  
+const pathname = usePathname()
+  const { state } = useSidebar()
+  const [user, setUser] = useState({ nom: "", prenom: "" })
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("user") || "{}")
+    setUser(stored)
+  }, [])
+
+  const displayName = `${user.prenom || ""} ${user.nom || ""}`.trim()
+  
   let parent = null
   let current = null
 
@@ -82,7 +91,7 @@ return (
       {/* Show greeting only on home page */}
       {!parent && !current && (
         <span className="text-foreground font-medium ml-2 font-serif text-base">
-          Bonjour, {user.name.toUpperCase()} 
+          Bonjour, {displayName} 
         </span>
       )}
     </nav>
