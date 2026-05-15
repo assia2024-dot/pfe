@@ -148,6 +148,7 @@ export function UserTable({ search = "", role = "all", sort = "id", order = "asc
                                                 <DropdownMenuItem
                                                     variant="destructive"
                                                     onSelect={() => setUserToDelete(user)}
+                                                    disabled={user.id === currentUser.userId}
                                                 >
                                                     Supprimer
                                                 </DropdownMenuItem>
