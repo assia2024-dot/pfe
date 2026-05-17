@@ -1,4 +1,4 @@
-export default function Home() {
+/*export default function Home() {
   const reportBase =
     "https://app.powerbi.com/reportEmbed?reportId=12bc76dc-4838-4794-a2b3-3132980bca06&autoAuth=true&ctid=04d6a2f0-64b2-4e71-b348-646401d08ee8&navContentPaneEnabled=false&filterPaneEnabled=false"
 
@@ -22,5 +22,13 @@ export default function Home() {
         </div>
       ))}
     </div>
+  )
+}*/
+
+export default function Home(){
+  return(
+    <>
+    <p>soon ....</p>
+    </>
   )
 }
